@@ -1,27 +1,27 @@
+var width = 640, height = 480;
 window.onload = function(){
-  var width = 0, height = 0;
+  var cvsW = 0, cvsH = 0;
   var canvas = document.getElementById("canvas");
   function resize(){
-    width = canvas.width = document.getElementById("container").clientWidth;
-    height = canvas.height = document.getElementById("container").clientHeight;
+    cvsW = canvas.width = document.getElementById("container").clientWidth;
+    cvsH = canvas.height = document.getElementById("container").clientHeight;
   }
   resize();
   window.onresize = resize;
 
   var ctx = canvas.getContext('2d');
-  var w = 640, h = 480;
   function render(){
-    ctx.clearRect(0,0,width,height);
+    ctx.clearRect(0,0,cvsW,cvsH);
     ctx.save();
-    ctx.translate(width/2-w/2,height/2-h/2);
+    ctx.translate(cvsW/2-width/2,cvsH/2-height/2);
     ctx.beginPath();
-    ctx.rect(0,0,w,h);
+    ctx.rect(0,0,width,height);
     ctx.lineWidth = 2.0;
     ctx.stroke();
     ctx.fillStyle = 'rgb(0,100,255)';
     if(execute)execute(function(x,y,w,h){
       ctx.fillRect(x,y,w,h);
-    },w,h);
+    },width,height);
     ctx.restore();
     requestAnimationFrame(render);
   }
