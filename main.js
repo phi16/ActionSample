@@ -2,6 +2,7 @@ const cw = 50, ch = 100;
 var x = width/2-cw/2, y = height/2, vx = 0, vy = 0;
 var jumping = false;
 var onwall = false;
+var wallkickable = false;
 
 var key = {left:false,down:false,up:false,right:false};
 
@@ -13,6 +14,11 @@ function execute(draw){
     vx *= 0.8;
   }else vx *= 0.99;
   vy += 0.8;
+  if(onwall){
+    if(x < width/2 && key.left || x > width/2 && key.right){
+      vy = Math.min(vy,3.0);
+    }
+  }
   x += vx;
   y += vy;
   if(y > height-ch){
@@ -25,15 +31,16 @@ function execute(draw){
     if(!jumping){
       vy = -15;
       jumping = true;
+      wallkickable = false;
     }
-    if(onwall){
+    if(onwall && wallkickable){
       vy = -15;
       jumping = true;
       if(x < width/2)vx = 10;
       else vx = -10;
       onwall = false;
     }
-  }
+  }else wallkickable = true;
   if(x < 0)x = 0, vx = 0, onwall = jumping;
   if(x > width-cw)x = width-cw, vx = 0, onwall = jumping;
 }
