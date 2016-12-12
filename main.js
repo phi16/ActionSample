@@ -1,63 +1,104 @@
 const cw = 50, ch = 100;
 var x = width/2-cw/2, y = height/2, vx = 0, vy = 0;
-var jumping = false;
-var onwall = false;
 var jumpable = false;
-var doublejump = false;
 
 var key = {left:false,down:false,up:false,right:false};
 
-function execute(draw){
-  draw(x,y,cw,ch);
-  if(!jumping){
-    if(key.left)vx-=3;
-    if(key.right)vx+=3;
-    vx *= 0.8;
-  }else{
-    if(key.left)vx-=0.001;
-    if(key.right)vx+=0.001;
-    vx *= 0.99;
-  }
+var current;
+
+function ground(){
+  if(key.left)vx-=3;
+  if(key.right)vx+=3;
+  vx *= 0.8
   vy += 0.8;
-  if(onwall){
-    if(x < width/2 && key.left || x > width/2 && key.right){
-      vy = Math.min(vy,3.0);
+  x += vx;
+  y += vy;
+  if(y > height-ch){
+    vy = 0;
+    y = height-ch;
+  }
+  if(key.up){
+    vy = -15;
+    current = jump1;
+    jumpable = false;
+  };
+  if(x < 0 && vx < 0)x = 0, vx = 0;
+  if(x > width-cw && vx > 0)x = width-cw, vx = 0;
+}
+
+function jump1(){
+  if(key.left)vx-=0.001;
+  if(key.right)vx+=0.001;
+  vx *= 0.99;
+  vy += 0.8;
+  x += vx;
+  y += vy;
+  if(y > height-ch){
+    vy = 0;
+    y = height-ch;
+    current = ground;
+  }
+  if(key.up){
+    if(jumpable){
+      vy = -15;
+      current = jump2;
+      jumpable = false;
     }
+  }
+  if(x < 0 && vx < 0)x = 0, vx = 0, current = wall;
+  if(x > width-cw && vx > 0)x = width-cw, vx = 0, current = wall;
+}
+
+function jump2(){
+  if(key.left)vx-=0.001;
+  if(key.right)vx+=0.001;
+  vx *= 0.99;
+  vy += 0.8;
+  x += vx;
+  y += vy;
+  if(y > height-ch){
+    vy = 0;
+    y = height-ch;
+    current = ground;
+  }
+  if(x < 0 && vx < 0)x = 0, vx = 0, current = wall;
+  if(x > width-cw && vx > 0)x = width-cw, vx = 0, current = wall;
+}
+
+function wall(){
+  if(key.left)vx-=0.001;
+  if(key.right)vx+=0.001;
+  vx *= 0.99;
+  vy += 0.8;
+  if(x < width/2 && key.left || x > width/2 && key.right){
+    vy = Math.min(vy,3.0);
   }
   x += vx;
   y += vy;
   if(y > height-ch){
     vy = 0;
     y = height-ch;
-    jumping = false;
-    onwall = false;
+    current = ground;
   }
   if(key.up){
-    if(!jumping){
-      vy = -15;
-      jumping = true;
-      doublejump = true;
-      jumpable = false;
-    }
-    if(onwall && jumpable){
+    if(jumpable){
       vy = -15;
       if(x < width/2)vx = 10;
       else vx = -10;
-      onwall = false;
-      jumping = true;
-      doublejump = true;
-      jumpable = false;
-    }
-    if(doublejump && jumpable){
-      vy = -15;
-      jumping = true;
-      doublejump = false;
+      current = jump1;
       jumpable = false;
     }
   }
+  if(x < 0 && vx < 0)x = 0, vx = 0;
+  if(x > width-cw && vx > 0)x = width-cw, vx = 0;
+}
+
+current = ground;
+
+function execute(draw){
+  draw(x,y,cw,ch);
+  current();
   if(!key.up)jumpable = true;
-  if(x < 0 && vx < 0)x = 0, vx = 0, onwall = jumping;
-  if(x > width-cw && vx > 0)x = width-cw, vx = 0, onwall = jumping;
 }
 function input(e,pressing){
   if(e.keyCode==37)key.left = pressing;
