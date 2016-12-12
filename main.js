@@ -13,7 +13,11 @@ function execute(draw){
     if(key.left)vx-=3;
     if(key.right)vx+=3;
     vx *= 0.8;
-  }else vx *= 0.99;
+  }else{
+    if(key.left)vx-=0.001;
+    if(key.right)vx+=0.001;
+    vx *= 0.99;
+  }
   vy += 0.8;
   if(onwall){
     if(x < width/2 && key.left || x > width/2 && key.right){
@@ -52,8 +56,8 @@ function execute(draw){
     }
   }
   if(!key.up)jumpable = true;
-  if(x < 0)x = 0, vx = 0, onwall = jumping;
-  if(x > width-cw)x = width-cw, vx = 0, onwall = jumping;
+  if(x < 0 && vx < 0)x = 0, vx = 0, onwall = jumping;
+  if(x > width-cw && vx > 0)x = width-cw, vx = 0, onwall = jumping;
 }
 function input(e,pressing){
   if(e.keyCode==37)key.left = pressing;
