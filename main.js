@@ -4,70 +4,65 @@ var jumpable = false;
 
 var key = {left:false,down:false,up:false,right:false};
 
-var current;
-
-var ground,jump1,jump2,wall;
-function basis(isGround,isWall,jump){
-  return function(){
-    if(key.left)vx -= isGround ? 3 : 0.001;
-    if(key.right)vx += isGround ? 3 : 0.001;
-    vx *= isGround ? 0.8 : 0.99;
-    vy += 0.8;
-    if(isWall){
-      if(x < width/2 && key.left || x > width/2 && key.right){
-        vy = Math.min(vy,3.0);
-      }
-    }
-    x += vx;
-    y += vy;
-    if(y > height-ch){
-      vy = 0;
-      y = height-ch;
-      current = ground;
-    }
-    if(key.up){
-      jump();
-    };
-    if(x < 0 && vx < 0){
-      x = 0, vx = 0;
-      if(!isGround)current = wall;
-    }
-    if(x > width-cw && vx > 0){
-      x = width-cw, vx = 0;
-      if(!isGround)current = wall;
-    }
-  }
-}
-
-ground = basis(true,false,function(){
-  vy = -15;
-  current = jump1;
-  jumpable = false;
-});
-jump1 = basis(false,false,function(){
-  if(jumpable){
-    vy = -15;
-    current = jump2;
-    jumpable = false;
-  }
-});
-jump2 = basis(false,false,function(){
-});
-wall = basis(false,true,function(){
-  if(jumpable){
-    vy = -15;
-    if(x < width/2)vx = 10;
-    else vx = -10;
-    current = jump1;
-    jumpable = false;
-  }
-});
-
-current = ground;
+var state = 0;
+// 0:ground
+// 1:jump1
+// 2:jump2
+// 3:wall
 
 function execute(draw){
   draw(x,y,cw,ch);
-  current();
+  if(key.left)vx -= state==0 ? 3 : 0.001;
+  if(key.right)vx += state==0 ? 3 : 0.001;
+  vx *= state==0 ? 0.8 : 0.99;
+  vy += 0.8;
+  if(state==3){
+    if(x < width/2 && key.left || x > width/2 && key.right){
+      vy = Math.min(vy,3.0);
+    }
+  }
+  x += vx;
+  y += vy;
+  if(y > height-ch){
+    vy = 0;
+    y = height-ch;
+    state = 0;
+  }
+  if(key.up){
+    switch(state){
+      case 0:
+        vy = -15;
+        state = 1;
+        jumpable = false;
+        break;
+      case 1:
+        if(jumpable){
+          vy = -15;
+          state = 2;
+          jumpable = false;
+        }
+        break;
+      case 2:
+        break;
+      case 3:
+        if(jumpable){
+          vy = -15;
+          if(x < width/2)vx = 10;
+          else vx = -10;
+          state = 1;
+          jumpable = false;
+        }
+        break;
+    }
+  }
+  if(x < 0 && vx < 0){
+    x = 0, vx = 0;
+    if(state!=0)state = 3;
+  }
+  if(x > width-cw && vx > 0){
+    x = width-cw, vx = 0;
+    if(state!=0)state = 3;
+  }
   if(!key.up)jumpable = true;
 }
 function input(e,pressing){
