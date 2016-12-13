@@ -4,16 +4,16 @@ var jumpable = false;
 
 var key = {left:false,down:false,up:false,right:false};
 
-var state = 0;
+var current;
 function ground(){
   vy = -15;
-  state = 1;
+  current = jump1;
   jumpable = false;
 }
 function jump1(){
   if(jumpable){
     vy = -15;
-    state = 2;
+    current = jump2;
     jumpable = false;
   }
 }
@@ -24,18 +24,20 @@ function wall(){
     vy = -15;
     if(x < width/2)vx = 10;
     else vx = -10;
-    state = 1;
+    current = jump1;
     jumpable = false;
   }
 }
 
+current = ground;
+
 function execute(draw){
   draw(x,y,cw,ch);
-  if(key.left)vx -= state==0 ? 3 : 0.001;
-  if(key.right)vx += state==0 ? 3 : 0.001;
-  vx *= state==0 ? 0.8 : 0.99;
+  if(key.left)vx -= current==ground ? 3 : 0.001;
+  if(key.right)vx += current==ground ? 3 : 0.001;
+  vx *= current==ground ? 0.8 : 0.99;
   vy += 0.8;
-  if(state==3){
+  if(current==wall){
     if(x < width/2 && key.left || x > width/2 && key.right){
       vy = Math.min(vy,3.0);
     }
@@ -45,23 +47,18 @@ function execute(draw){
   if(y > height-ch){
     vy = 0;
     y = height-ch;
-    state = 0;
+    current = ground;
   }
   if(key.up){
-    switch(state){
-      case 0:ground();break;
-      case 1:jump1();break;
-      case 2:jump2();break;
-      case 3:wall();break;
-    }
+    current();
   }
   if(x < 0 && vx < 0){
     x = 0, vx = 0;
-    if(state!=0)state = 3;
+    if(current!=ground)current = wall;
   }
   if(x > width-cw && vx > 0){
     x = width-cw, vx = 0;
-    if(state!=0)state = 3;
+    if(current!=ground)current = wall;
   }
   if(!key.up)jumpable = true;
 }
