@@ -29,6 +29,19 @@ function resetJumps(){
 }
 resetJumps();
 
+function* downKeyHandler(){
+  while(1){
+    var x;
+    while(x = yield, !x);
+    while(x = yield, x);
+    motVL = -10;
+    motVR = -10;
+    motAT = 10;
+  }
+}
+var downKey = downKeyHandler();
+downKey.next();
+
 function* ground(){
   isGround = true;
   isWall = false;
@@ -82,15 +95,17 @@ function step(){
     setState(ground);
   }
   if(x < 0 && vx < 0){
-    x = 0, vx = 0;
     motVT += 2;
-    motVR -= 2;
+    motVR -= 1.6;
+    if(vx < -3)motAR -= 10;
+    x = 0, vx = 0;
     if(!isGround)setState(wall);
   }
   if(x > width-cw && vx > 0){
-    x = width-cw, vx = 0;
     motVT += 2;
-    motVL -= 2;
+    motVL -= 1.6;
+    if(vx > 3)motAL -= 10;
+    x = width-cw, vx = 0;
     if(!isGround)setState(wall);
   }
   if(key.left){
@@ -101,10 +116,19 @@ function step(){
     if(vx>0)motAL += vx/20;
     else motVL -= 1;
   }
+  if(key.down && isGround){
+    motVL += 2;
+    motVR += 2;
+    motVT -= 5;
+  }
 }
 
 function execute(draw){
-  draw(x-motL,y-motT,cw+motL+motR,ch+motT+motB);
+  var px = x-motL, py = y-motT, pw = cw+motL+motR, ph = ch+motT+motB;
+  if(px < 0)px = 0;
+  if(px + pw > width)px = width-pw;
+  if(py + ph > height)py = height-ph;
+  draw(px,py,pw,ph);
   motVT += motAT;
   motVB += motAB;
   motVL += motAL;
@@ -135,5 +159,8 @@ function input(e,pressing){
 
   if(e.keyCode==38){
     upKey.next(pressing);
+  }
+  if(e.keyCode==40){
+    downKey.next(pressing);
   }
 }
