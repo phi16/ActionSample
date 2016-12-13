@@ -5,10 +5,29 @@ var jumpable = false;
 var key = {left:false,down:false,up:false,right:false};
 
 var state = 0;
-// 0:ground
-// 1:jump1
-// 2:jump2
-// 3:wall
+function ground(){
+  vy = -15;
+  state = 1;
+  jumpable = false;
+}
+function jump1(){
+  if(jumpable){
+    vy = -15;
+    state = 2;
+    jumpable = false;
+  }
+}
+function jump2(){
+}
+function wall(){
+  if(jumpable){
+    vy = -15;
+    if(x < width/2)vx = 10;
+    else vx = -10;
+    state = 1;
+    jumpable = false;
+  }
+}
 
 function execute(draw){
   draw(x,y,cw,ch);
@@ -30,29 +49,10 @@ function execute(draw){
   }
   if(key.up){
     switch(state){
-      case 0:
-        vy = -15;
-        state = 1;
-        jumpable = false;
-        break;
-      case 1:
-        if(jumpable){
-          vy = -15;
-          state = 2;
-          jumpable = false;
-        }
-        break;
-      case 2:
-        break;
-      case 3:
-        if(jumpable){
-          vy = -15;
-          if(x < width/2)vx = 10;
-          else vx = -10;
-          state = 1;
-          jumpable = false;
-        }
-        break;
+      case 0:ground();break;
+      case 1:jump1();break;
+      case 2:jump2();break;
+      case 3:wall();break;
     }
   }
   if(x < 0 && vx < 0){
