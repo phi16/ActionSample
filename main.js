@@ -6,6 +6,7 @@ var motAT=0, motAB=0, motAL=0, motAR=0;
 
 var key = {left:false,down:false,up:false,right:false};
 var isGround = true, isWall = false;
+var score = 0;
 var current;
 
 function setState(g){
@@ -64,6 +65,7 @@ function* wall(){
   isGround = false;
   isWall = true;
   yield;
+  score++;
   vy = -15;
   motAB -= 10;
   if(x < width/2)vx = 10, motVL = 20;
@@ -125,11 +127,12 @@ function step(){
   }
 }
 
-function execute(draw){
+function execute(draw,text){
   var px = x-motL, py = y-motT, pw = cw+motL+motR, ph = ch+motT+motB;
   if(px < 0)px = 0;
   if(px + pw > width)px = width-pw;
   if(py + ph > height)py = height-ph;
+  if(score!=0)text(score);
   draw(px,py,pw,ph);
   motVT += motAT;
   motVB += motAB;
@@ -154,10 +157,10 @@ function execute(draw){
   step();
 }
 function input(e,pressing){
-  if(e.keyCode==37)key.left = pressing;
+  if(e.keyCode==37)key.left = pressing, score = 0;
   if(e.keyCode==38)key.up = pressing;
-  if(e.keyCode==39)key.right = pressing;
-  if(e.keyCode==40)key.down = pressing;
+  if(e.keyCode==39)key.right = pressing, score = 0;
+  if(e.keyCode==40)key.down = pressing, score = 0;
 
   if(e.keyCode==38){
     upKey.next(pressing);
