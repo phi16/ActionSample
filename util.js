@@ -10,6 +10,8 @@ window.onload = function(){
   window.onresize = resize;
 
   var ctx = canvas.getContext('2d');
+  ctx.textAlign = "center"
+  ctx.font = height + "px 'Courier'";
   function render(){
     ctx.clearRect(0,0,cvsW,cvsH);
     ctx.save();
@@ -18,9 +20,12 @@ window.onload = function(){
     ctx.rect(0,0,width,height);
     ctx.lineWidth = 2.0;
     ctx.stroke();
-    ctx.fillStyle = 'rgb(0,100,255)';
     if(execute)execute(function(x,y,w,h){
+      ctx.fillStyle = 'rgb(0,100,255)';
       ctx.fillRect(x,y,w,h);
+    },function(str){
+      ctx.fillStyle = 'rgba(128,128,192,0.3)';
+      ctx.fillText(str,width/2,height*0.8);
     },width,height);
     ctx.restore();
     requestAnimationFrame(render);
