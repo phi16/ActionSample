@@ -34,9 +34,11 @@ function* downKeyHandler(){
     var x;
     while(x = yield, !x);
     while(x = yield, x);
-    motVL = -10;
-    motVR = -10;
-    motAT = 10;
+    if(isGround){
+      motVL = -10;
+      motVR = -10;
+      motAT = 10;
+    }
   }
 }
 var downKey = downKeyHandler();
@@ -64,8 +66,8 @@ function* wall(){
   yield;
   vy = -15;
   motAB -= 10;
-  if(x < width/2)vx = 10;
-  else vx = -10;
+  if(x < width/2)vx = 10, motVL = 20;
+  else vx = -10, motVR = 20;
   setState(jumping);
 }
 
